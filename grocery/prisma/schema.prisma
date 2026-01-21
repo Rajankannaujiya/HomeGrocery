@@ -1,0 +1,218 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String
+  password  String?
+  mobile    String?
+  image     String?
+  location Location?
+  role      Role     @default(USER)
+  order     Order[]
+  userChats     ChatRoom[] @relation("UserChats")
+  deliveryChats ChatRoom[] @relation("DeliveryChats")
+  assignedAssignments    DeliveryAssignment[] @relation("AssignedAssignments")
+  broadcastedAssignments DeliveryAssignment[] @relation("BroadcastedAssignments", fields: [broadcastedAssignmentIds], references: [id])
+  broadcastedAssignmentIds String[] @db.ObjectId
+  cart  Cart?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([location], map: "location_2dsphere")
+}
+
+model Grocery {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  category  Category
+  price     String
+  unit      Unit
+  image     String
+  cartItems CartItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String     @unique @db.ObjectId
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String   @db.ObjectId
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  groceryId String   @db.ObjectId
+  grocery   Grocery  @relation(fields: [groceryId], references: [id])
+  quantity  Int      @default(1)
+  @@unique([cartId, groceryId])
+}
+
+model Order {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String        @db.ObjectId
+  user            User          @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  address         OrderAddress
+  totalAmount     String
+  paymentMethod   PaymentMethod @default(COD)
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  razorpayOrderId String?
+  paymentId       String?
+  deliveryAssignments DeliveryAssignment[]
+  chatRoom        ChatRoom?
+  deliveryOtp     String?
+  deliveryOtpVerification  Boolean?
+  deliveredAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+}
+
+model DeliveryAssignment {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  orderId      String    @db.ObjectId
+  order        Order     @relation(fields: [orderId], references: [id])
+
+  brodcastedToIds String[] @db.ObjectId
+  brodcastedTo    User[]   @relation("BroadcastedAssignments", fields: [brodcastedToIds], references: [id])
+
+  assignedToId String?   @db.ObjectId
+  assignedTo   User?     @relation("AssignedAssignments", fields: [assignedToId], references: [id])
+
+  status       DeliveryAssignStatus    @default(BRODCASTED)
+  acceptedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  @@map("delivery_assignments")
+}
+
+model ChatRoom {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  orderId       String    @unique @db.ObjectId
+  order         Order     @relation(fields: [orderId], references: [id])
+  userId        String    @db.ObjectId
+  user          User      @relation("UserChats", fields: [userId], references: [id])
+  deliveryBoyId String    @db.ObjectId
+  deliveryBoy   User      @relation("DeliveryChats", fields: [deliveryBoyId], references: [id])
+  messages      Message[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Message {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  chatRoomId String   @db.ObjectId
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  senderId   String   @db.ObjectId
+  text       String
+  time        String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+type Location {
+  type       String   @default("Point")
+  coordinates Float[]  // [longitude, latitude]
+}
+
+type OrderItem {
+  groceryId String  @db.ObjectId
+  name      String
+  price     String
+  image     String?
+  quantity  Int
+  unit      Unit
+}
+
+type OrderAddress {
+  fullName    String
+  mobile      String
+  city        String
+  state       String
+  pincode     String
+  fullAddress String
+  latitude    Float
+  longitude   Float
+}
+
+enum Status {
+  BRODCASTED
+  ASSIGNED
+  COMPLETED
+}
+
+enum DeliveryAssignStatus {
+  BRODCASTED
+  ASSIGNED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  FAILED
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  OUT_OF_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum Role {
+  USER
+  ADMIN
+  DELIVERY_BOY
+}
+
+enum Category {
+  FRUITS_AND_VEGETABLES
+  DAIRY_AND_EGGS
+  RICE_ATTA_AND_GRAINS
+  SNACKS_AND_BISCUITS
+  SPICES_AND_MASALAS
+  BEVERAGES_AND_DRINKS
+  PERSONAL_CARE
+  HOUSEHOLD_ESSENTIALS
+  INSTANT_AND_PACKAGED_FOOD
+  BABY_AND_PET_CARE
+}
+
+enum Unit {
+  KG
+  G
+  L
+  ML
+  PIECE
+  PACK
+  DOZEN
+  BOX
+}

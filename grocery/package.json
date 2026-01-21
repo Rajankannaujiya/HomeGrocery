@@ -1,0 +1,48 @@
+{
+  "name": "grossery",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@google/genai": "^1.37.0",
+    "@prisma/client": "6.19.1",
+    "@reduxjs/toolkit": "^2.11.2",
+    "@types/leaflet": "^1.9.21",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.8.0",
+    "dotenv": "^17.2.3",
+    "leaflet": "^1.9.4",
+    "leaflet-geosearch": "^4.2.2",
+    "lucide-react": "^0.562.0",
+    "motion": "^12.23.26",
+    "next": "16.1.1",
+    "next-auth": "5.0.0-beta.30",
+    "nodemailer": "^7.0.12",
+    "razorpay": "^2.9.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-leaflet": "^5.0.0",
+    "react-redux": "^9.2.0",
+    "react-toastify": "^11.0.5",
+    "recharts": "^3.6.0",
+    "tsx": "^4.21.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/nodemailer": "^7.0.5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "prisma": "^6.19.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
