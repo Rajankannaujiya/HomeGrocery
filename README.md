@@ -1,4 +1,4 @@
-# 🥦 FreshCart: Next.js Grocery Store
+# 🥦 HomeGrocery: Next.js Grocery Store
 
 A high-performance, SEO-friendly e-commerce platform built specifically for grocery shopping, featuring lightning-fast page loads and a modern user interface.
 
