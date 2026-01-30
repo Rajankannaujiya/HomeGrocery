@@ -31,23 +31,32 @@ const RegisterForm = ({ prevStep }: PropsType) => {
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-      setLoading(false);
-      toast.success("Login successful");
+  e.preventDefault();
+  setLoading(true);
 
-      window.location.href = "/";
-    } catch (error) {
-      setLoading(true);
-      toast.error("An unexpected error occurred");
+  try {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    setLoading(false);
+
+    if (!result || result.error) {
+      toast.error("Invalid email or password");
+      return;
     }
-  };
+
+    toast.success("Login successful");
+    window.location.href = "/";
+  } catch (error) {
+    setLoading(false);
+    toast.error("An unexpected error occurred");
+  }
+};
+
+  
   return (
     <div className="flex flex-col min-h-screen justify-center items-center px-6 py-10 bg-white relative">
       <motion.h1
