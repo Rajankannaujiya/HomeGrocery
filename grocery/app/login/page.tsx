@@ -100,7 +100,7 @@ const RegisterForm = ({ prevStep }: PropsType) => {
           <Key className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
           <input
             type={showPassword ? "text" : "password"}
-            placeholder="Enter your Name"
+            placeholder="Enter your Password"
             className="w-full border border-gray-200 rounded-xl p-3 pl-10 pr-4 text-gray-800 focus:ring-2 focus:ring-teal-500 focus:outline-none"
             onChange={(e) => setPassword(e.target.value)}
             value={password}
